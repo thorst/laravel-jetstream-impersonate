@@ -45,7 +45,7 @@ return $.ajax(obj)
 ```
 
 ## User model
-On the user model I added two funcitons, one that says only admin users can impersonate others, and another saying only non admins can be impersonated. I have a integer on the user table that corresponds to Role model, which is basically just an enum.
+On the user model I added two funcitons, one that says only admin users can impersonate others, and another saying only non admins can be impersonated. I have an integer on the user table that corresponds to Role model, which is basically just an enum.
 ```php
  public function canImpersonate()
 {
@@ -58,6 +58,7 @@ public function canBeImpersonated()
 ```
 
 ## Impersonate middleware
+The middleware is the magic here, if the session has the impersonate attribute, we look up the user and then set the user. Even though this middleware will be called with every web and api request, it should be quick to execute because of the if.
 ```php
  public function handle(Request $request, Closure $next): Response
     {
@@ -78,7 +79,7 @@ public function canBeImpersonated()
 ```
 
 ## Kernel
-Next we need to modify app\Http\Kernel.php to add the middleware
+Next we need to modify app\Http\Kernel.php to add the middleware to both the web and api stacks.
 ```php
 protected $middlewareGroups = [
     'web' => [
@@ -101,7 +102,7 @@ protected $middlewareGroups = [
 ```
 
 ## Controller
-
+This controller is was sets/destroys the impersonate attribute in the session. It kicks off and ends the session, so the middleware acts accordingly.
 ```php
 public function start(Request $request, $userId)
 {
@@ -117,10 +118,6 @@ public function start(Request $request, $userId)
 
 public function stop()
 {
-    if (!session()->has('impersonate')) {
-        return redirect()->route('dashboard');
-    }
-
     // Remove impersonation data from the session
     session()->forget('impersonate');
 
@@ -129,12 +126,10 @@ public function stop()
 ```
 
 ## Web Routes
-I have routes that arent protected, and then the bulk of my routes are within the auth:santcum middleware. I also have a section within the auth:sanctum for the admin prefix for further protection. This is all to say that I add these two routes outside of all that, and its at the unprotected level.
+The the bulk of my routes are within the auth:santcum middleware protection which requires the user to be logged in. I placed these routes within the auth:sanctum main block.
 ```php
-Route::middleware(['auth:web'])->group(function () {
-    Route::post('/impersonate/{user}', [ImpersonationController::class, 'start'])->name('impersonate.start');
-    Route::post('/impersonate/stop', [ImpersonationController::class, 'stop'])->name('impersonate.stop');
-});
+Route::post('/impersonate/{user}', [ImpersonationController::class, 'start'])->name('impersonate.start');
+Route::get('/impersonate/stop', [ImpersonationController::class, 'stop'])->name('impersonate.stop');
 ```
 
 ## Admin Dashboard
@@ -146,11 +141,41 @@ To test these new endpoints I added this code. You can see I statically have it 
       <button type="submit">Impersonate 5</button>
   </form>
   @endcan
+```
 
-  @if (session()->has('impersonate'))
-  <form method="POST" action="{{ route('impersonate.stop') }}">
-      @csrf
-      <button type="submit">Stop Impersonating</button>
-  </form>
-  @endif
+## Main Template Banner
+In `resources\views\layouts\app.blade.php` I have the following code. This will ensure you remember your impersonating a user. You could put this link in the main navigation, or wherever, but I choose to have it be a banner at the top of the window.
+```blade
+@if (session()->has('impersonate'))
+<div class="alert alert-danger text-center" role="alert">
+    <a href="{{ route('impersonate.stop') }}" class="btn btn-danger">Leave Impersonation</a>
+</div>
+@endif
+```
+
+## Admin Dashboard v2
+Now that I have everything tested and working, I went back to the admin panel. I wrote functionality to list all user, with search and pagination. On each user row there is a dropdown menu with an impersonate option. When that is clicked I get the user id that was call a js method.
+```blade
+<form id="frmImpersonate" method="POST">
+    @csrf
+</form>
+```
+```javascript
+// When admin clicks on the impersonate button
+$("#contUsers").on("click", ".user_impersonate", function (e) {
+    e.preventDefault();
+
+    // Get the user
+    let idx = $(this).closest(".userRow").index(),
+        user = app.users.list[idx];
+
+    // Log the user
+    console.log(user);
+
+    // Populate the forms action url 
+    $('#frmImpersonate').attr('action', 'impersonate/' + user.id);
+
+    // Submit the form
+    $('#frmImpersonate').submit();
+});
 ```
