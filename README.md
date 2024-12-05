@@ -45,7 +45,7 @@ return $.ajax(obj)
 ```
 
 ## User model
-On the user model I added two funcitons, one that says only admin users can impersonate others, and another saying only non admins can be impersonated. I have an integer on the user table that corresponds to Role model, which is basically just an enum.
+On the user model `app\Models\User.php` I added two funcitons, one that says only admin users can impersonate others, and another saying only non admins can be impersonated. I have an integer on the user table that corresponds to Role model, which is basically just an enum.
 ```php
 public function canImpersonate()
 {
@@ -58,7 +58,7 @@ public function canBeImpersonated()
 ```
 
 ## Impersonate middleware
-The middleware is the magic here, if the session has the impersonate attribute, we look up the user and then set the user. Even though this middleware will be called with every web and api request, it should be quick to execute because of the if.
+The middleware `app\Http\Middleware\Impersonate.php` is the magic here, if the session has the impersonate attribute, we look up the user and then set the user. Even though this middleware will be called with every web and api request, it should be quick to execute because of the if.
 ```php
  public function handle(Request $request, Closure $next): Response
  {
@@ -79,7 +79,7 @@ The middleware is the magic here, if the session has the impersonate attribute, 
 ```
 
 ## Kernel
-Next we need to modify app\Http\Kernel.php to add the middleware to both the web and api stacks.
+Next we need to modify `app\Http\Kernel.php` to add the middleware to both the web and api stacks.
 ```php
 protected $middlewareGroups = [
     'web' => [
@@ -102,7 +102,7 @@ protected $middlewareGroups = [
 ```
 
 ## Controller
-This controller is was sets/destroys the impersonate attribute in the session. It kicks off and ends the session, so the middleware acts accordingly.
+This controller `app\Http\Controllers\ImpersonationController.php` is was sets/destroys the impersonate attribute in the session. It kicks off and ends the session, so the middleware acts accordingly.
 ```php
 public function start(Request $request, $userId)
 {
@@ -126,13 +126,13 @@ public function stop()
 ```
 
 ## Web Routes
-The bulk of my routes are within the auth:santcum middleware protection which requires the user to be logged in. I placed these routes within the auth:sanctum main block.
+The bulk of my routes in `routes\web.php` are within the auth:santcum middleware protection which requires the user to be logged in. I placed these routes within the auth:sanctum main block.
 ```php
 Route::post('/impersonate/{user}', [ImpersonationController::class, 'start'])->name('impersonate.start');
 Route::get('/impersonate/stop', [ImpersonationController::class, 'stop'])->name('impersonate.stop');
 ```
 
-## Main Template Banner
+## Main Layout
 In `resources\views\layouts\app.blade.php` I have the following code. This will ensure you remember your impersonating a user. You could put this link in the main navigation, or wherever, but I choose to have it be a banner at the top of the window. I also have a test button defined. Once everything is set up and working we will test using this button as a regular user and as an admin. In my case I am impersonating user 5 which is a regular user. Of course you will remove this form & button once everything is tested.
 ```blade
 @if (session()->has('impersonate'))
@@ -147,7 +147,7 @@ In `resources\views\layouts\app.blade.php` I have the following code. This will 
 </form>
 ```
 
-## Admin Dashboard v2
+## Admin Dashboard
 Now that I have everything tested and working, I went back to the admin panel and removed the hardcoded user 5 button. I wrote functionality to list all user, with search and pagination. On each user row there is a dropdown menu with an impersonate option. When that is clicked I get the user id that was call a js method.
 ```blade
 <form id="frmImpersonate" method="POST">
@@ -174,4 +174,4 @@ $("#contUsers").on("click", ".user_impersonate", function (e) {
 });
 ```
 ## Test Stop impersonate as regular user
-Since we are just using a get to stop the impersonation, you can test as a regular user and as an admin, whether you are impersonating or not by going to `/impersonate/stop`
+Since we are just using a `GET` to stop the impersonation, you can test as a regular user and as an admin, whether you are impersonating or not, by going to `https://mysite/impersonate/stop`
