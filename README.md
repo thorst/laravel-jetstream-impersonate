@@ -177,7 +177,7 @@ $("#contUsers").on("click", ".user_impersonate", function (e) {
 Since we are just using a `GET` to stop the impersonation, you can test as a regular user and as an admin, whether you are impersonating or not, by going to `https://mysite/impersonate/stop`
 
 ## Links
-Here are some tuts that I used to help get this working. THere are also two libs if you dont want to roll your own.
+Here are some tuts that I used to help get this working. There are also two libs if you dont want to roll your own.
 -  https://mauricius.dev/easily-impersonate-any-user-in-a-laravel-application/
 -  https://laracasts.com/discuss/channels/laravel/sanctum-still-sees-auth-as-main-user-when-impersonating
 -  https://github.com/404labfr/laravel-impersonate (How To: https://laravel-news.com/laravel-impersonate)
