@@ -148,7 +148,7 @@ In `resources\views\layouts\app.blade.php` I have the following code. This will 
 ```
 
 ## Admin Dashboard
-Now that I have everything tested and working, I went back to the admin panel and removed the hardcoded user 5 button. I wrote functionality to list all user, with search and pagination. On each user row there is a dropdown menu with an impersonate option. When that is clicked I get the user id that was call a js method.
+Now that I have everything tested and working, I went to the admin panel. I wrote functionality to list all user, with search and pagination. On each user row there is a dropdown menu with an impersonate option. When that is clicked I get the user id, then i use that to call a js method.
 ```blade
 <form id="frmImpersonate" method="POST">
     @csrf
