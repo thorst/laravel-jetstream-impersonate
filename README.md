@@ -5,7 +5,7 @@ Adds the ability for administrators to impersonate users for testing
 Im using Laravel Jetstream with livewire. Im not really using livewire anywhere other than whats built into jetstream. Im not using teams. I added jQuery, and mostly call the api's in order retrieve data. Then I populate templates with that data and render it.
 
 ## jQuery
-Just as an FYI, here is my jquery code to make my ajax calls. This is just to illistrate that when im making calls within the app, im not sending in the bearer token. Thats only used by 3rd party applications that want to consume my public api.
+Just as an FYI, here is my jquery code to make my ajax calls. This is just to illistrate that when I'm making calls within the app, I'm not sending in the bearer token. Thats only used by 3rd party applications that want to consume my public api.
 
 POST:
 ```javascript
@@ -126,7 +126,7 @@ public function stop()
 ```
 
 ## Web Routes
-The the bulk of my routes are within the auth:santcum middleware protection which requires the user to be logged in. I placed these routes within the auth:sanctum main block.
+The bulk of my routes are within the auth:santcum middleware protection which requires the user to be logged in. I placed these routes within the auth:sanctum main block.
 ```php
 Route::post('/impersonate/{user}', [ImpersonationController::class, 'start'])->name('impersonate.start');
 Route::get('/impersonate/stop', [ImpersonationController::class, 'stop'])->name('impersonate.stop');
