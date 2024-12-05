@@ -47,7 +47,7 @@ return $.ajax(obj)
 ## User model
 On the user model I added two funcitons, one that says only admin users can impersonate others, and another saying only non admins can be impersonated. I have an integer on the user table that corresponds to Role model, which is basically just an enum.
 ```php
- public function canImpersonate()
+public function canImpersonate()
 {
     return $this->role_id == Role::ADMIN;
 }
@@ -61,21 +61,21 @@ public function canBeImpersonated()
 The middleware is the magic here, if the session has the impersonate attribute, we look up the user and then set the user. Even though this middleware will be called with every web and api request, it should be quick to execute because of the if.
 ```php
  public function handle(Request $request, Closure $next): Response
-    {
-       
-        // Check if impersonation is active
-        if (Session::has('impersonate')) {
-            $impersonatedUserId = Session::get('impersonate');
+ {
+    
+     // Check if impersonation is active
+     if (Session::has('impersonate')) {
+         $impersonatedUserId = Session::get('impersonate');
 
-            // Find and set the impersonated user
-            $impersonatedUser = \App\Models\User::find($impersonatedUserId);
-            if ($impersonatedUser && $impersonatedUser.canBeImpersonated()) {
-                Auth::setUser($impersonatedUser);
-            }
-        }
+         // Find and set the impersonated user
+         $impersonatedUser = \App\Models\User::find($impersonatedUserId);
+         if ($impersonatedUser && $impersonatedUser.canBeImpersonated()) {
+             Auth::setUser($impersonatedUser);
+         }
+     }
 
-        return $next($request);
-    }
+     return $next($request);
+ }
 ```
 
 ## Kernel
@@ -132,29 +132,23 @@ Route::post('/impersonate/{user}', [ImpersonationController::class, 'start'])->n
 Route::get('/impersonate/stop', [ImpersonationController::class, 'stop'])->name('impersonate.stop');
 ```
 
-## Admin Dashboard
-To test these new endpoints I added this code. You can see I statically have it set to impersonate user 5. This gets replaced once everything is verified to work. 
-```blade
- @can('impersonate')
-  <form method="POST" action="{{ route('impersonate.start', 5) }}">
-      @csrf
-      <button type="submit">Impersonate 5</button>
-  </form>
-  @endcan
-```
-
 ## Main Template Banner
-In `resources\views\layouts\app.blade.php` I have the following code. This will ensure you remember your impersonating a user. You could put this link in the main navigation, or wherever, but I choose to have it be a banner at the top of the window.
+In `resources\views\layouts\app.blade.php` I have the following code. This will ensure you remember your impersonating a user. You could put this link in the main navigation, or wherever, but I choose to have it be a banner at the top of the window. I also have a test button defined. Once everything is set up and working we will test using this button as a regular user and as an admin. In my case I am impersonating user 5 which is a regular user. Of course you will remove this form & button once everything is tested.
 ```blade
 @if (session()->has('impersonate'))
 <div class="alert alert-danger text-center" role="alert">
     <a href="{{ route('impersonate.stop') }}" class="btn btn-danger">Leave Impersonation</a>
 </div>
 @endif
+
+<form method="POST" action="{{ route('impersonate.start', 5) }}">
+    @csrf
+    <button type="submit">Impersonate 5</button>
+</form>
 ```
 
 ## Admin Dashboard v2
-Now that I have everything tested and working, I went back to the admin panel. I wrote functionality to list all user, with search and pagination. On each user row there is a dropdown menu with an impersonate option. When that is clicked I get the user id that was call a js method.
+Now that I have everything tested and working, I went back to the admin panel and removed the hardcoded user 5 button. I wrote functionality to list all user, with search and pagination. On each user row there is a dropdown menu with an impersonate option. When that is clicked I get the user id that was call a js method.
 ```blade
 <form id="frmImpersonate" method="POST">
     @csrf
@@ -179,3 +173,5 @@ $("#contUsers").on("click", ".user_impersonate", function (e) {
     $('#frmImpersonate').submit();
 });
 ```
+## Test Stop impersonate as regular user
+Since we are just using a get to stop the impersonation, you can test as a regular user and as an admin, whether you are impersonating or not by going to `/impersonate/stop`
