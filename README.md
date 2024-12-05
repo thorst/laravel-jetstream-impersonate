@@ -2,10 +2,10 @@
 Adds the ability for administrators to impersonate users for testing
 
 ## My Project Architecture
-Im using Laravel Jetstream with livewire. I then ripped out tailwind, and put bootstrap back in. Im not really using livewire anywhere other than whats built into jetstream. Im not using teams. I added jQuery, and mostly call the api's in order retrieve data. Then I populate templates with that data and render it.
+Im using Laravel Jetstream with livewire. Im not really using livewire anywhere other than whats built into jetstream. Im not using teams. I added jQuery, and mostly call the api's in order retrieve data. Then I populate templates with that data and render it.
 
 ## jQuery
-Just as an FYI, here are my jquery to make my ajax calls. This is just to illistrate that when im making calls within the app, im not sending in the bearer token. Thats only used by 3rd party applications that want to consume my public api.
+Just as an FYI, here is my jquery code to make my ajax calls. This is just to illistrate that when im making calls within the app, im not sending in the bearer token. Thats only used by 3rd party applications that want to consume my public api.
 
 POST:
 ```javascript
