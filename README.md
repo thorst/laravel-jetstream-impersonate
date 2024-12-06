@@ -45,7 +45,7 @@ return $.ajax(obj)
 ```
 
 ## User model
-On the user model `app\Models\User.php` I added two funcitons, one that says only admin users can impersonate others, and another saying only non admins can be impersonated. I have an integer on the user table that corresponds to Role model, which is basically just an enum.
+On the user model `app\Models\User.php` I added two functions, one that says only admin users can impersonate others, and another saying only non admins can be impersonated. I have an integer on the user table that corresponds to Role model, which is basically just an enum.
 ```php
 public function canImpersonate()
 {
@@ -107,7 +107,7 @@ This controller `app\Http\Controllers\ImpersonationController.php` is was sets/d
 public function start(Request $request, $userId)
 {
     // Ensure the current user has permission to impersonate
-    if (!Auth::user()->can('impersonate')) {
+    if (!Auth::user()->canImpersonate()) {
         abort(403, 'Unauthorized action.');
     }
 
