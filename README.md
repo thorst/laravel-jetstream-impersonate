@@ -1,6 +1,9 @@
 # laravel-jetstream-impersonate
 Adds the ability for administrators to impersonate users for testing
 
+# Almost Working!!!!
+This works 100% if the impersonator and the impersonated have the same password. I can refresh the page and make ajax calls as normal. However if they have different passwords, it loads the dashboard once, successfully makes the two onpageload ajax calls, but then any page refreshes take me to the sign in screen.
+
 ## My Project Architecture
 Im using Laravel Jetstream with livewire. Im not really using livewire anywhere other than whats built into jetstream. Im not using teams. I added jQuery, and mostly call the api's in order retrieve data. Then I populate templates with that data and render it.
 
